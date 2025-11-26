@@ -53,7 +53,7 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS BOOK_AUTHORS (
 """)
 cursor.execute("""CREATE TABLE IF NOT EXISTS BORROWER (
     card_id CHAR(8) PRIMARY KEY,
-    ssn VARCHAR(11),
+    ssn VARCHAR(11) UNIQUE,
     first_name VARCHAR(255),
     last_name VARCHAR(255),
     address VARCHAR(255),

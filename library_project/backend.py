@@ -44,7 +44,38 @@ def search(search_str):
             i = i + 1
 
         authors = authors[:-2]
-        print(f"{isbn}, {title}, {authors}")
+        print(f"{isbn:<12} \t {title:<90} \t {authors:<100}")
         authors = ""
 
-search("WILL")
+def create_account(ssn, first_name, last_name, address, city, state, phone):
+    try:
+        cursor.execute("""SELECT card_id
+                        FROM BORROWER
+                        ORDER BY card_id DESC
+                        LIMIT 1;""")
+
+        row = cursor.fetchone()
+
+        print(row[0])
+
+        id_num = int(row[0][2:])
+
+        length = 6 - len(str(id_num))
+
+        zeros = ""
+        for i in range(length):
+            zeros = zeros + "0"
+
+        card_id = "ID" + zeros + str(id_num + 1)
+
+        print(card_id)
+
+        cursor.execute("""INSERT INTO BORROWER (card_id, ssn, first_name, last_name, address, city, state, phone) VALUES (%s, %s, %s, %s, %s, %s, %s, %s);""", (card_id, ssn, first_name, last_name, address, city, state, phone))
+        conn.commit()
+
+    except psycopg2.Error as err:
+        print("Database error:", err)
+
+create_account(123455, "sjkdbkj", "sbkjb", "kjasb", "asjkfjabf", "sdkjbvk", "ksjdbkjh")
+cursor.close()
+conn.close()
