@@ -1,5 +1,6 @@
 import psycopg2
 import pandas as pd
+from datetime import date
 
 conn = psycopg2.connect(host="localhost", dbname="library", user="postgres", password="Joshua123", port=5432)
 
@@ -7,7 +8,6 @@ cursor = conn.cursor()
 
 def search(search_str):
     search_str = f"%{search_str.lower()}%"
-    print("BOOK")
     #SELECT BOOK.isbn, title, AUTHORS.first_name, AUTHORS.middle_name, AUTHORS.last_name
     #cursor.execute("""SELECT * FROM book WHERE LOWER(isbn) LIKE %s OR LOWER(title) LIKE %s;""", (search_str, search_str))
     cursor.execute("""SELECT BOOK.isbn, title, AUTHORS.first_name, AUTHORS.middle_name, AUTHORS.last_name
@@ -28,7 +28,9 @@ def search(search_str):
             duplicates.add(isbn)
         seen.add(isbn)
 
-    print("Duplicate ISBNs:", duplicates)
+    #print("Duplicate ISBNs:", duplicates)
+
+    print(f"{'ISBN':<16}\t{'TITLE':<150}\t{'AUTHORS':<100}")
 
     isbn = rows[0][0]
     authors = ""
@@ -38,13 +40,13 @@ def search(search_str):
         title = rows[i][1]
         while (i < len(rows) and rows[i][0] == isbn):
             middle_name = rows[i][3]
-            if (pd.isna(middle_name)):
+            if (middle_name == ""):
                 middle_name = ""
             authors = authors + rows[i][2] + " " + middle_name + " " + rows[i][4] + ", "
             i = i + 1
 
         authors = authors[:-2]
-        print(f"{isbn:<12} \t {title:<90} \t {authors:<100}")
+        print(f"{isbn:<14} \t {title:<150} \t {authors:<100}")
         authors = ""
 
 def create_account(ssn, first_name, last_name, address, city, state, phone):
@@ -76,6 +78,68 @@ def create_account(ssn, first_name, last_name, address, city, state, phone):
     except psycopg2.Error as err:
         print("Database error:", err)
 
-create_account(123455, "sjkdbkj", "sbkjb", "kjasb", "asjkfjabf", "sdkjbvk", "ksjdbkjh")
+def fines():
+    try:
+        cursor.execute("""SELECT loan_id, due_date, date_in
+                        FROM BOOK_LOANS;""")
+
+        results = cursor.fetchall()
+
+        if not results:
+            print("No results")
+            return
+
+        for result in results:
+            loan_id = result[0]
+            due_date = result[1]
+            date_in = result[2]
+            current_date = date.today()
+            fine_amt = 0
+
+            if date_in is None:
+                if (current_date - due_date).days > 0:
+                    fine_amt = (current_date - due_date).days * 0.25
+
+            else:
+                if (date_in - date.today()).days > 0:
+                    fine_amt = (date_in - due_date).days * 0.25
+
+            cursor.execute("""SELECT * FROM FINES WHERE loan_id=%s;""", loan_id)
+
+            record = cursor.fetchone()
+
+            if record:
+                if record[2] == 0 and fine_amt > record[2]:
+                    cursor.execute("""UPDATE FINES SET fine_amt=%s WHERE loan_id=%s;""", (fine_amt, loan_id))
+
+            else:
+                cursor.execute("""INSERT INTO FINES (loan_id, fine_amt, paid) VALUES (%s, %s, %s);""", (loan_id, fine_amt, 0))
+                conn.commit()
+
+    except psycopg2.Error as err:
+        print("Database error:", err)
+
+def update_fines(loan_id):
+    try:
+        cursor.execute("""SELECT date_in FROM BOOK_LOANS WHERE loan_id=%s;""", loan_id)
+        record = cursor.fetchone()
+
+        if not record:
+            print("BOOK_LOANS NOT FOUND")
+            return
+
+        if not record[0]:
+            print("BOOK HAS NOT BEEN RETURNED!")
+            return
+
+        cursor.execute("""UPDATE FINE SET fine_amt=%s, paid=%s WHERE loan_id=%s;""", (0, 1, loan_id))
+
+    except psycopg2.Error as err:
+        print("Database error:", err)
+
+search("Charles")
+#create_account(123455, "sjkdbkj", "sbkjb", "kjasb", "asjkfjabf", "sdkjbvk", "ksjdbkjh")
+#fines()
+#update_fines([1])
 cursor.close()
 conn.close()
