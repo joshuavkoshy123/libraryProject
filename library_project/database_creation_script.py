@@ -18,8 +18,7 @@ print(df_book_authors.columns.tolist())
 print(df_authors.columns.tolist())
 print(df_borrower.columns.tolist())
 
-# change password to yours
-conn = psycopg2.connect(host="localhost", dbname="library", user="postgres", password="2004", port=5432)
+conn = psycopg2.connect(host="localhost", dbname="library", user="postgres", password="Joshua123", port=5432)
 
 cursor = conn.cursor()
 
