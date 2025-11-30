@@ -1,3 +1,5 @@
+from unittest import result
+
 import psycopg2
 import pandas as pd
 from datetime import date
@@ -43,7 +45,7 @@ def search(search_str):
 
     #print("Duplicate ISBNs:", duplicates)
 
-    print(f"{'ISBN':<16}\t{'TITLE':<150}\t{'AUTHORS':<100}")
+    print(f"{'ISBN':<16}\t{'TITLE':<150}\t{'AUTHORS':<100}\t{'STATUS':<100}")
 
     isbn = rows[0][0]
     authors = ""
@@ -58,8 +60,23 @@ def search(search_str):
             authors = authors + rows[i][2] + " " + middle_name + " " + rows[i][4] + ", "
             i = i + 1
 
+        cursor.execute("""SELECT date_in FROM BOOK_LOANS WHERE isbn=%s;""", (isbn,))
+        results = cursor.fetchall()
+
+        status = "IN"
+
+        for result in results:
+            if result:
+                if result[0] is None:
+                    status = "OUT"
+                    break
+                else:
+                    status = "IN"
+            else:
+                status = "IN"
+
         authors = authors[:-2]
-        print(f"{isbn:<14} \t {title:<150} \t {authors:<100}")
+        print(f"{isbn:<14} \t {title:<150} \t {authors:<100} \t {status:<100}")
         authors = ""
 
 def create_account(ssn, first_name, last_name, address, city, state, phone):
@@ -90,6 +107,73 @@ def create_account(ssn, first_name, last_name, address, city, state, phone):
 
     except psycopg2.Error as err:
         print("Database error:", err)
+
+# depends on checkout
+# find checked out books with isbn, card_id, and borrower name in order to decide which books to check in
+def find_checked_out(search): # by dylan
+    search = f"%{search}%" # format for query
+
+    cursor.execute("""
+        SELECT BL.loan_id, BL.isbn, BL.card_id, BR.first_name, BR.last_name, B.title, BL.date_out, BL.due_date
+        FROM BOOK_LOANS BL
+        JOIN BOOK B ON BL.isbn = B.isbn
+        JOIN BORROWER BR ON BL.card_id = BR.card_id
+        WHERE BL.date_in IS NULL 
+        AND (
+            BL.isbn ILIKE %s OR BL.card_id ILIKE %s OR BR.first_name ILIKE %s OR BR.last_name ILIKE %s
+        )
+        ORDER BY BL.loan_id ASC;
+    """, (search, search, search, search))
+
+    # ILIKE is the case insensitive version of LIKE
+    rows = cursor.fetchall()
+    print("Active Loans")
+    print("loan_id, isbn, card_id, borrower, title")
+    for r in rows:
+        loan_id = r[0]
+        isbn = r[1]
+        card_id = r[2]
+        borrower = f"{r[3]} {r[4]}"
+        title = r[5]
+        print(f"{loan_id}, {isbn}, {card_id}, {borrower}, {title}")
+    return rows
+
+def check_in(loan_ids): # by dylan
+    # loan_ids is a list of loan_id int
+    for loan_id in loan_ids:
+        # check if loan exists
+        cursor.execute("""
+            SELECT loan_id, date_in
+            FROM BOOK_LOANS
+            WHERE loan_id = %s;
+        """, (loan_id,))
+        row = cursor.fetchone()
+
+        if row is None: # if loan doesn't exist
+            print(f"ERROR: Loan {loan_id} does not exist.")
+            continue
+
+        # if already checked in
+        if row[1] is not None: # row[1] = date_in
+            print(f"Loan {loan_id} is already checked in.")
+            continue
+
+        cursor.execute("""
+            UPDATE BOOK_LOANS
+            SET date_in = CURRENT_DATE
+            WHERE loan_id = %s;
+        """, (loan_id,))
+
+        conn.commit()
+        print("Check in successful")
+
+
+# tests
+# cursor.execute("""
+#     INSERT INTO BOOK_LOANS(, isbn, card_id, date_out, due_date, date_in)
+#     VALUES (0345391802, ID000001, CURRENT_DATE, CURRENT_DATE + INTERVAL '14 days', NULL);
+# """)
+#conn.commit()
 
 def checkout(card_id, isbn):
     try:
@@ -198,8 +282,11 @@ def update_fines(loan_id):
     except psycopg2.Error as err:
         print("Database error:", err)
 
-#checkout(123455,1552041778)
-search("Charles")
+#checkout("ID000003","1552041778")
+# print("Temp loan created")
+#print(find_checked_out("ID000002"))
+#check_in([2])
+search("Jane Doe")
 #create_account(123455, "sjkdbkj", "sbkjb", "kjasb", "asjkfjabf", "sdkjbvk", "ksjdbkjh")
 #fines()
 #update_fines([1])
