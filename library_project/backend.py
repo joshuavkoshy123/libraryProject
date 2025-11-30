@@ -7,14 +7,14 @@ import pandas as pd
 #import normalization_script
 #import database_creation_script
 
-#conn = psycopg2.connect(host="localhost", dbname="library", user="postgres", password="Joshua123", port=5432)
-conn = psycopg2.connect(
-    host="localhost",
-    dbname="library",
-    user="kadija",
-    password="kadijab",
-    port=5432
-)
+conn = psycopg2.connect(host="localhost", dbname="library", user="postgres", password="Joshua123", port=5432)
+# conn = psycopg2.connect(
+#     host="localhost",
+#     dbname="library",
+#     user="kadija",
+#     password="kadijab",
+#     port=5432
+# )
 cursor = conn.cursor()
 
 
@@ -136,6 +136,9 @@ def checkout(card_id, isbn):
         
         conn.commit()
         print ("Checkout successful, your book is due on ", due_date)
+    except psycopg2.Error as err:
+        print("Database error:", err)
+
 def fines():
     try:
         cursor.execute("""SELECT loan_id, due_date, date_in
@@ -195,6 +198,7 @@ def update_fines(loan_id):
     except psycopg2.Error as err:
         print("Database error:", err)
 
+#checkout(123455,1552041778)
 search("Charles")
 #create_account(123455, "sjkdbkj", "sbkjb", "kjasb", "asjkfjabf", "sdkjbvk", "ksjdbkjh")
 #fines()
