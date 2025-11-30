@@ -2,9 +2,22 @@ import psycopg2
 import pandas as pd
 from datetime import date
 
-conn = psycopg2.connect(host="localhost", dbname="library", user="postgres", password="Joshua123", port=5432)
 
+import pandas as pd
+#import normalization_script
+#import database_creation_script
+
+#conn = psycopg2.connect(host="localhost", dbname="library", user="postgres", password="Joshua123", port=5432)
+conn = psycopg2.connect(
+    host="localhost",
+    dbname="library",
+    user="kadija",
+    password="kadijab",
+    port=5432
+)
 cursor = conn.cursor()
+
+
 
 def search(search_str):
     search_str = f"%{search_str.lower()}%"
@@ -78,6 +91,51 @@ def create_account(ssn, first_name, last_name, address, city, state, phone):
     except psycopg2.Error as err:
         print("Database error:", err)
 
+def checkout(card_id, isbn):
+    try:
+        cursor.execute("""SELECT COUNT(BOOK_LOANS.card_id)
+                          FROM BOOK_LOANS 
+                          WHERE BOOK_LOANS.card_id = %s AND date_in IS NULL;""", (card_id,))
+
+        loan_count = cursor.fetchone()[0]
+
+        if loan_count>=3:
+            print("Cannot checkout more than 3 books.")
+            return
+
+        import datetime
+        date_out = datetime.date.today()
+        print(date_out)
+        due_date = date_out + datetime.timedelta(days=14)
+        date_in=None
+        
+
+        cursor.execute("""SELECT loan_id
+                          FROM BOOK_LOANS 
+                          WHERE ISBN =%s AND date_in IS NULL ;""", (isbn,))    
+        if cursor.fetchone():
+            print("Book is already checked out. Please make another selection.")
+            return
+        
+        cursor.execute("""SELECT loan_id
+                          FROM BOOK_LOANS 
+                          ORDER BY  loan_id DESC
+                          LIMIT 1;""")
+
+        current_id=  cursor.fetchone()
+
+        if  current_id is not None:
+            loan_id= current_id[0] + 1
+
+        else:
+            loan_id=1
+
+
+        cursor.execute("""INSERT INTO BOOK_LOANS (loan_id, isbn, card_id, date_out, due_date, date_in) VALUES (%s, %s, %s, %s, %s, %s);""", (loan_id, isbn, card_id, date_out, due_date, date_in))
+        
+        
+        conn.commit()
+        print ("Checkout successful, your book is due on ", due_date)
 def fines():
     try:
         cursor.execute("""SELECT loan_id, due_date, date_in
