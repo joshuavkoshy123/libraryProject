@@ -76,7 +76,7 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS BOOK_LOANS (
 cursor.execute("""CREATE TABLE IF NOT EXISTS FINES (
     loan_id INT PRIMARY KEY,
     fine_amt DECIMAL(10,2),
-    paid DECIMAL(10,2),
+    paid INT,
     FOREIGN KEY(loan_id) REFERENCES BOOK_LOANS(loan_id)
 );
 """)

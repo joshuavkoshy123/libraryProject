@@ -244,12 +244,17 @@ def fines():
             if date_in is None:
                 if (current_date - due_date).days > 0:
                     fine_amt = (current_date - due_date).days * 0.25
+                else:
+                    fine_amt = 0
 
             else:
                 if (date_in - date.today()).days > 0:
                     fine_amt = (date_in - due_date).days * 0.25
+                else:
+                    fine_amt = 0
 
-            cursor.execute("""SELECT * FROM FINES WHERE loan_id=%s;""", loan_id)
+            loan_arr = [loan_id]
+            cursor.execute("""SELECT * FROM FINES WHERE loan_id=%s;""", loan_arr)
 
             record = cursor.fetchone()
 
@@ -282,7 +287,7 @@ def update_fines(loan_id):
     except psycopg2.Error as err:
         print("Database error:", err)
 
-#checkout("ID000003","1552041778")
+#checkout("ID000001","1552041778")
 # print("Temp loan created")
 #print(find_checked_out("ID000002"))
 #check_in([2])
