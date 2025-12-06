@@ -1,0 +1,40 @@
+The frontend should enable users to create accounts (or login), search for books, check-out books, check-in books,
+and pay fines. We can do this through at least 4 pages/tabs (Login page, search and checkout page, check-in page,
+fines page). Here is the breakdown I am thinking:
+
+Login Page:
+When the user first visits the website, they should reach the login page. Here they can try to login, but if they do not have
+an account, they should be prompted to create a new account. On the login screen, there could simply be a button/link called
+"Create New Account" which displays a form which allows the user to create an account with the following details:
+    - ssn
+    - first_name
+    - last_name
+    - address
+    - city
+    - state
+    - phone
+After the user enters their details and clicks submit on the form, you can simply call the /api/create_account endpoint
+in backend.py to actually create the account in the database with a unique CardID (I can help yall with integrating the
+backend).
+
+Search and Checkout Page:
+This page should allow users to search for a book based on isbn, title, or author name. It should then display the books in
+a table with the following columns: ISBN, TITLE, AUTHORS, STATUS, CHECKOUT.
+
+This data can be found by calling the /api/search endpoint in backend.py (with the search_string as a parameter), which
+should return a 2D array.
+
+*Note that the CHECKOUT column should not display any data, rather it should display a button in that row (only if the
+STATUS is IN) to allow the user to check out the book. After the user clicks the button, you can simply call the
+/api/checkout endpoint in backend.py (with the cardID of the user and book isbn as parameters).
+
+Check-In Page:
+This will be similar to the checkout page, but instead will allow users to check in any books they have checked out. You can
+call the /api/find_checked_out endpoint (passing in the users CardID as a parameter) in backend.py to get the list of
+checked out books for that user. Similarly, have a CHECK IN column that allows users to check in their books by calling
+the /api/checkin endpoint (passing in the books loan id), which should remove that book from the table.
+
+Fines Page:
+The fines page will display the fines for each borrower. I will work on a display_fines endpoint that you can call to get
+this data. There should also be a button in each row to allow the librarian to pay the fines for the borrower. This will set
+their fine_amt to 0. For this, you should calculate the /api/update_fines endpoint in backend.py

@@ -110,6 +110,7 @@ def create_account(ssn, first_name, last_name, address, city, state, phone):
 
 # depends on checkout
 # find checked out books with isbn, card_id, and borrower name in order to decide which books to check in
+@app.route('/api/find_checked_out', methods=['GET'])
 def find_checked_out(search): # by dylan
     search = f"%{search}%" # format for query
 
