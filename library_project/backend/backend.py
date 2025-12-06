@@ -3,11 +3,12 @@ from unittest import result
 import psycopg2
 import pandas as pd
 from datetime import date
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+import os
 
-
-import pandas as pd
-#import normalization_script
-#import database_creation_script
+app = Flask(__name__)
+CORS(app, origins="http://localhost:3000")
 
 conn = psycopg2.connect(host="localhost", dbname="library", user="postgres", password="Joshua123", port=5432)
 # conn = psycopg2.connect(
@@ -19,12 +20,10 @@ conn = psycopg2.connect(host="localhost", dbname="library", user="postgres", pas
 # )
 cursor = conn.cursor()
 
-
-
-def search(search_str):
+@app.route('/api/search', methods=['GET'])
+def search():
+    search_str = request
     search_str = f"%{search_str.lower()}%"
-    #SELECT BOOK.isbn, title, AUTHORS.first_name, AUTHORS.middle_name, AUTHORS.last_name
-    #cursor.execute("""SELECT * FROM book WHERE LOWER(isbn) LIKE %s OR LOWER(title) LIKE %s;""", (search_str, search_str))
     cursor.execute("""SELECT BOOK.isbn, title, AUTHORS.first_name, AUTHORS.middle_name, AUTHORS.last_name
                       FROM BOOK
                       JOIN BOOK_AUTHORS ON BOOK.isbn=BOOK_AUTHORS.isbn
@@ -79,6 +78,7 @@ def search(search_str):
         print(f"{isbn:<14} \t {title:<150} \t {authors:<100} \t {status:<100}")
         authors = ""
 
+@app.route('/api/create_account', methods=['POST'])
 def create_account(ssn, first_name, last_name, address, city, state, phone):
     try:
         cursor.execute("""SELECT card_id
@@ -138,6 +138,7 @@ def find_checked_out(search): # by dylan
         print(f"{loan_id}, {isbn}, {card_id}, {borrower}, {title}")
     return rows
 
+@app.route('/api/check_in', methods=['POST'])
 def check_in(loan_ids): # by dylan
     # loan_ids is a list of loan_id int
     for loan_id in loan_ids:
@@ -175,6 +176,7 @@ def check_in(loan_ids): # by dylan
 # """)
 #conn.commit()
 
+@app.route('/api/checkout', methods=['POST'])
 def checkout(card_id, isbn):
     try:
         cursor.execute("""SELECT COUNT(BOOK_LOANS.card_id)
@@ -223,7 +225,8 @@ def checkout(card_id, isbn):
     except psycopg2.Error as err:
         print("Database error:", err)
 
-def fines():
+
+def calculate_fines():
     try:
         cursor.execute("""SELECT loan_id, due_date, date_in
                         FROM BOOK_LOANS;""")
@@ -269,6 +272,7 @@ def fines():
     except psycopg2.Error as err:
         print("Database error:", err)
 
+@app.route('/api/update_fines', methods=['POST'])
 def update_fines(loan_id):
     try:
         cursor.execute("""SELECT date_in FROM BOOK_LOANS WHERE loan_id=%s;""", loan_id)
@@ -291,7 +295,7 @@ def update_fines(loan_id):
 # print("Temp loan created")
 #print(find_checked_out("ID000002"))
 #check_in([2])
-search("Jane Doe")
+search("1552041778")
 #create_account(123455, "sjkdbkj", "sbkjb", "kjasb", "asjkfjabf", "sdkjbvk", "ksjdbkjh")
 #fines()
 #update_fines([1])
