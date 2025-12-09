@@ -23,7 +23,8 @@ cursor = conn.cursor()
 
 @app.route('/api/search', methods=['GET'])
 def search():
-    search_str = request.get_json()
+    search = request.get_json()
+    search_str = search.get("query", "")
     search_str = f"%{search_str.lower()}%"
     cursor.execute("""SELECT BOOK.isbn, title, AUTHORS.first_name, AUTHORS.middle_name, AUTHORS.last_name
                       FROM BOOK
@@ -82,8 +83,18 @@ def search():
     return jsonify(rows)
 
 @app.route('/api/create_account', methods=['POST'])
-def create_account(ssn, first_name, last_name, address, city, state, phone):
+def create_account():
     try:
+        data = request.get_json()
+
+        ssn = data.get("ssn", "")
+        first_name = data.get("first_name", "")
+        last_name = data.get("last_name", "")
+        address = data.get("address", "")
+        city = data.get("city", "")
+        state = data.get("state", "")
+        phone = data.get("phone", "")
+
         cursor.execute("""SELECT card_id
                         FROM BORROWER
                         ORDER BY card_id DESC
