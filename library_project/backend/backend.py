@@ -110,6 +110,8 @@ def create_account(ssn, first_name, last_name, address, city, state, phone):
     except psycopg2.Error as err:
         print("Database error:", err)
 
+    return jsonify({"status": "OK"})
+
 @app.route('/api/display_all_checked_out', methods=['GET'])
 def display_all_checked_out():
     cursor.execute("""SELECT BL.loan_id, BL.isbn, BL.card_id, BR.first_name, BR.last_name, B.title, BL.date_out, BL.due_date
@@ -318,7 +320,7 @@ def display_fines():
         return
 
     else:
-        return results
+        return jsonify(results)
 
 #checkout("ID000001","1552041778")
 # print("Temp loan created")
