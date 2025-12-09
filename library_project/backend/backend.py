@@ -22,7 +22,7 @@ cursor = conn.cursor()
 
 @app.route('/api/search', methods=['GET'])
 def search():
-    search_str = request
+    search_str = request.get_json()
     search_str = f"%{search_str.lower()}%"
     cursor.execute("""SELECT BOOK.isbn, title, AUTHORS.first_name, AUTHORS.middle_name, AUTHORS.last_name
                       FROM BOOK
@@ -78,6 +78,8 @@ def search():
         print(f"{isbn:<14} \t {title:<150} \t {authors:<100} \t {status:<100}")
         authors = ""
 
+    return jsonify(rows)
+
 @app.route('/api/create_account', methods=['POST'])
 def create_account(ssn, first_name, last_name, address, city, state, phone):
     try:
@@ -107,6 +109,18 @@ def create_account(ssn, first_name, last_name, address, city, state, phone):
 
     except psycopg2.Error as err:
         print("Database error:", err)
+
+@app.route('/api/display_all_checked_out', methods=['GET'])
+def display_all_checked_out():
+    cursor.execute("""SELECT BL.loan_id, BL.isbn, BL.card_id, BR.first_name, BR.last_name, B.title, BL.date_out, BL.due_date
+                      FROM BOOK_LOANS BL
+                      JOIN BOOK B ON BL.isbn = B.isbn
+                      JOIN BORROWER BR ON BL.card_id = BR.card_id
+                      ORDER BY BL.loan_id ASC;
+                      """)
+
+    rows = cursor.fetchall()
+    return jsonify(rows)
 
 # depends on checkout
 # find checked out books with isbn, card_id, and borrower name in order to decide which books to check in
@@ -181,7 +195,7 @@ def check_in(loan_ids): # by dylan
 def checkout(card_id, isbn):
     try:
         cursor.execute("""SELECT COUNT(BOOK_LOANS.card_id)
-                          FROM BOOK_LOANS 
+                          FROM BOOK_LOANS
                           WHERE BOOK_LOANS.card_id = %s AND date_in IS NULL;""", (card_id,))
 
         loan_count = cursor.fetchone()[0]
@@ -225,7 +239,6 @@ def checkout(card_id, isbn):
         print ("Checkout successful, your book is due on ", due_date)
     except psycopg2.Error as err:
         print("Database error:", err)
-
 
 def calculate_fines():
     try:
@@ -292,13 +305,29 @@ def update_fines(loan_id):
     except psycopg2.Error as err:
         print("Database error:", err)
 
+@app.route('/api/display_fines', methods=['GET'])
+def display_fines():
+    calculate_fines()
+    cursor.execute("""SELECT card_id, SUM(fine_amt)
+                      FROM BOOK_LOANS
+                      JOIN FINES ON BOOK_LOANS.loan_id = FINES.loan_id
+                      GROUP BY card_id;""")
+    results = cursor.fetchall()
+    if not results:
+        print("No book loans")
+        return
+
+    else:
+        return results
+
 #checkout("ID000001","1552041778")
 # print("Temp loan created")
 #print(find_checked_out("ID000002"))
 #check_in([2])
-search("1552041778")
+search()
 #create_account(123455, "sjkdbkj", "sbkjb", "kjasb", "asjkfjabf", "sdkjbvk", "ksjdbkjh")
 #fines()
 #update_fines([1])
+#print(display_fines())
 cursor.close()
 conn.close()
