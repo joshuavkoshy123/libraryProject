@@ -204,6 +204,9 @@ def check_in(): # by dylan
 
 @app.route('/api/checkout', methods=['POST'])
 def checkout(card_id, isbn):
+    data = request.get_json()
+    card_id = data.get("card_id", "")
+    isbn = data.get("isbn", "")
     try:
         cursor.execute("""SELECT COUNT(BOOK_LOANS.card_id)
                           FROM BOOK_LOANS
@@ -250,6 +253,8 @@ def checkout(card_id, isbn):
         print ("Checkout successful, your book is due on ", due_date)
     except psycopg2.Error as err:
         print("Database error:", err)
+
+    return jsonify({"CARD_ID": card_id, "ISBN": isbn})
 
 def calculate_fines():
     try:
