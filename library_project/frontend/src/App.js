@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import Login from './pages/login';
 import Search from './pages/search';
+import CheckInPage from './components/CheckInPage';
 import './App.css';
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
       <Routes>
         <Route path='/login' element={<Login />} />
         <Route path='/search' element={<Search />} />
+        <Route path='/checkin' element={<CheckInPage />} />
       </Routes>
     </div>
   );

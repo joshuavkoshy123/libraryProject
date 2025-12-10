@@ -22,7 +22,8 @@ cursor = conn.cursor()
 
 @app.route('/api/search', methods=['GET'])
 def search():
-    search_str = request.get_json()
+    search = request.get_json()
+    search_str = search.get("query", "")
     search_str = f"%{search_str.lower()}%"
     cursor.execute("""SELECT BOOK.isbn, title, AUTHORS.first_name, AUTHORS.middle_name, AUTHORS.last_name
                       FROM BOOK
@@ -81,8 +82,18 @@ def search():
     return jsonify(rows)
 
 @app.route('/api/create_account', methods=['POST'])
-def create_account(ssn, first_name, last_name, address, city, state, phone):
+def create_account():
     try:
+        data = request.get_json()
+
+        ssn = data.get("ssn", "")
+        first_name = data.get("first_name", "")
+        last_name = data.get("last_name", "")
+        address = data.get("address", "")
+        city = data.get("city", "")
+        state = data.get("state", "")
+        phone = data.get("phone", "")
+
         cursor.execute("""SELECT card_id
                         FROM BORROWER
                         ORDER BY card_id DESC
@@ -110,6 +121,8 @@ def create_account(ssn, first_name, last_name, address, city, state, phone):
     except psycopg2.Error as err:
         print("Database error:", err)
 
+    return jsonify({"status": "OK"})
+
 @app.route('/api/display_all_checked_out', methods=['GET'])
 def display_all_checked_out():
     cursor.execute("""SELECT BL.loan_id, BL.isbn, BL.card_id, BR.first_name, BR.last_name, B.title, BL.date_out, BL.due_date
@@ -124,8 +137,10 @@ def display_all_checked_out():
 
 # depends on checkout
 # find checked out books with isbn, card_id, and borrower name in order to decide which books to check in
-@app.route('/api/find_checked_out', methods=['GET'])
-def find_checked_out(search): # by dylan
+@app.route('/api/find_checked_out', methods=['POST'])
+def find_checked_out(): # by dylan
+    data = request.get_json()
+    search = data.get("search", "")
     search = f"%{search}%" # format for query
 
     cursor.execute("""
@@ -140,22 +155,17 @@ def find_checked_out(search): # by dylan
         ORDER BY BL.loan_id ASC;
     """, (search, search, search, search))
 
-    # ILIKE is the case insensitive version of LIKE
     rows = cursor.fetchall()
-    print("Active Loans")
-    print("loan_id, isbn, card_id, borrower, title")
-    for r in rows:
-        loan_id = r[0]
-        isbn = r[1]
-        card_id = r[2]
-        borrower = f"{r[3]} {r[4]}"
-        title = r[5]
-        print(f"{loan_id}, {isbn}, {card_id}, {borrower}, {title}")
-    return rows
+    return jsonify(rows)
 
 @app.route('/api/check_in', methods=['POST'])
-def check_in(loan_ids): # by dylan
+def check_in(): # by dylan
+    data = request.get_json()
+    loan_ids = data.get("loan_ids", [])
     # loan_ids is a list of loan_id int
+
+    updated = []
+
     for loan_id in loan_ids:
         # check if loan exists
         cursor.execute("""
@@ -166,13 +176,11 @@ def check_in(loan_ids): # by dylan
         row = cursor.fetchone()
 
         if row is None: # if loan doesn't exist
-            print(f"ERROR: Loan {loan_id} does not exist.")
-            continue
+            return jsonify({"ERROR": f"Loan {loan_id} does not exist"}), 400
 
         # if already checked in
         if row[1] is not None: # row[1] = date_in
-            print(f"Loan {loan_id} is already checked in.")
-            continue
+            return jsonify({"ERROR": f"Loan {loan_id} is already checked in"}), 400
 
         cursor.execute("""
             UPDATE BOOK_LOANS
@@ -181,7 +189,8 @@ def check_in(loan_ids): # by dylan
         """, (loan_id,))
 
         conn.commit()
-        print("Check in successful")
+        updated.append(loan_id)
+    return jsonify({"Message": "Check in successful", "updated": updated})
 
 
 # tests
@@ -318,7 +327,7 @@ def display_fines():
         return
 
     else:
-        return results
+        return jsonify(results)
 
 #checkout("ID000001","1552041778")
 # print("Temp loan created")
@@ -329,5 +338,8 @@ def display_fines():
 #fines()
 #update_fines([1])
 #print(display_fines())
-cursor.close()
-conn.close()
+#cursor.close()
+#conn.close()
+
+if __name__ == "__main__":
+    app.run(debug=True, port=5001)
