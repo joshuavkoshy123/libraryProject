@@ -7,9 +7,10 @@ import './App.css';
 function App() {
   return (
     <div className='App'>
-      <nav>
+      <nav className='Nav'>
         <Link to='/login'>Log In</Link>
         <Link to='/search'>Search Books</Link>
+        <Link to='/checkin'>Check In</Link>
       </nav>
       <Routes>
         <Route path='/login' element={<Login />} />
