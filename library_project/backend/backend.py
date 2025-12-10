@@ -10,7 +10,7 @@ import os
 app = Flask(__name__)
 CORS(app, origins="http://localhost:3000")
 
-conn = psycopg2.connect(host="localhost", dbname="library", user="postgres", password="Joshua123", port=5432)
+conn = psycopg2.connect(host="localhost", dbname="library", user="charlesdoan", password="Joshua123", port=5432)
 # conn = psycopg2.connect(
 #     host="localhost",
 #     dbname="library",
@@ -324,7 +324,7 @@ def display_fines():
 # print("Temp loan created")
 #print(find_checked_out("ID000002"))
 #check_in([2])
-search()
+#search()
 #create_account(123455, "sjkdbkj", "sbkjb", "kjasb", "asjkfjabf", "sdkjbvk", "ksjdbkjh")
 #fines()
 #update_fines([1])
