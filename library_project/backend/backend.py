@@ -69,12 +69,12 @@ def search():
         for result in results:
             if result:
                 if result[0] is None:
-                    status[count] = "OUT"
+                    status.append("OUT")
                     break
                 else:
-                    status[count] = "IN"
+                    status.append("IN")
             else:
-                status[count] = "IN"
+                status.append("IN")
 
         authors = authors[:-2]
         print(f"{isbn:<14} \t {title:<150} \t {authors:<100} \t {status[count]:<100}")
