@@ -1,16 +1,7 @@
 import { useState } from "react";
 import '../styles/login.css'
 
-/*
 
-    - ssn
-    - first_name
-    - last_name
-    - address
-    - city
-    - state
-    - phone
-    */
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(false);
@@ -42,7 +33,7 @@ export default function Login() {
    * @param {SubmitEvent} e 
    */
   async function handleLogin(e) {
-    try{
+    try {
       const res = await fetch('http://localhost:5000/api/create_account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

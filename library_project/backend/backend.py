@@ -20,10 +20,11 @@ conn = psycopg2.connect(host="localhost", dbname="library", user="charlesdoan", 
 # )
 cursor = conn.cursor()
 
-@app.route('/api/search', methods=['GET'])
+@app.route('/api/search', methods=['POST'])
 def search():
     search = request.get_json()
-    search_str = search.get("query", "")
+    search_str = search["query"]
+    #search_str = search.get("query", "")
     search_str = f"%{search_str.lower()}%"
     cursor.execute("""SELECT BOOK.isbn, title, AUTHORS.first_name, AUTHORS.middle_name, AUTHORS.last_name
                       FROM BOOK
