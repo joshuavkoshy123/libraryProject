@@ -19,7 +19,7 @@ export default function Search() {
   function handleChange(e) {
     const {name, value} = e.target;
 
-    setSearch(prevSearch => value);
+    setSearch(_ => value);
   }
 
   /**
@@ -36,7 +36,7 @@ export default function Search() {
       lName: book[4],
     }));
     console.log(temp);
-    setBooks(prevBooks => temp);
+    setBooks(_ => temp);
   }
 
   /**
@@ -57,6 +57,7 @@ export default function Search() {
       }
 
       const data = await response.json();
+      console.log(data);
       updateBooks(data);
     } catch (e) {
       console.error(e);
@@ -64,7 +65,7 @@ export default function Search() {
   }
 
   function handleCheckout(e) {
-    
+
   }
 
   /**
