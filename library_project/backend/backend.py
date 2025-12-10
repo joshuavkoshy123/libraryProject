@@ -51,6 +51,8 @@ def search():
     isbn = rows[0][0]
     authors = ""
     i = 0
+    count = 0
+    status = []
     while i < len(rows):
         isbn = rows[i][0]
         title = rows[i][1]
@@ -64,23 +66,22 @@ def search():
         cursor.execute("""SELECT date_in FROM BOOK_LOANS WHERE isbn=%s;""", (isbn,))
         results = cursor.fetchall()
 
-        status = "IN"
-
         for result in results:
             if result:
                 if result[0] is None:
-                    status = "OUT"
+                    status[count] = "OUT"
                     break
                 else:
-                    status = "IN"
+                    status[count] = "IN"
             else:
-                status = "IN"
+                status[count] = "IN"
 
         authors = authors[:-2]
-        print(f"{isbn:<14} \t {title:<150} \t {authors:<100} \t {status:<100}")
+        print(f"{isbn:<14} \t {title:<150} \t {authors:<100} \t {status[count]:<100}")
         authors = ""
+        count += 1
 
-    return jsonify(rows)
+    return jsonify({"books": rows, "status": status})
 
 @app.route('/api/create_account', methods=['POST'])
 def create_account():
