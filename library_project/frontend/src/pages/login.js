@@ -28,10 +28,18 @@ export default function Login() {
   function handleChange(e) {
     const {name, value} = e.target;
     setUserCreds(prevUserCreds => ({
+      
       ...prevUserCreds,
       [name]: value,
+      
     }));
+    
   }
+
+  
+
+
+
 
   /**
    * Handles the user's login, ensuring they have an account and prompting them 
