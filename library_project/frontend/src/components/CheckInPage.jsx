@@ -3,15 +3,18 @@ import React, { useEffect, useState } from "react";
 export default function CheckInPage() {
   const [checkedOut, setCheckedOut] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // hardcoded for now, replace with login later
-  const cardId = localStorage.getItem("card_id") || "ID000001";
+  const [cardId, setCardId] = useState("");
 
   // Format date to YYYY-MM-DD
   const formatDate = (str) => {
     if (!str) return "";
     return new Date(str).toISOString().split("T")[0];
   };
+
+  useEffect(() => {
+    const stored = localStorage.getItem("card_id") || "ID000001"; // for now
+    setCardId(stored);
+  }, [])
 
   // Load checked-out books
   async function fetchCheckedOut() {
@@ -30,8 +33,10 @@ export default function CheckInPage() {
 
   // Run once when the page loads
   useEffect(() => {
-    fetchCheckedOut();
-  }, []);
+    if (cardId) {
+      fetchCheckedOut();
+    }
+  }, [cardId]);
 
   // Handle check-in
   async function handleCheckIn(id) {
