@@ -95,6 +95,13 @@ def create_account():
         state = data.get("state", "")
         phone = data.get("phone", "")
 
+        print(f"SSN: {ssn}")
+        print(f"fname: {first_name}")
+        print(f"lname: {last_name}")
+        
+
+        #print("ssn\n" ssn, "fname\n" first_name, last_name, address, city, state, phone)
+
         cursor.execute("""SELECT card_id
                         FROM BORROWER
                         ORDER BY card_id DESC
@@ -122,7 +129,7 @@ def create_account():
     except psycopg2.Error as err:
         print("Database error:", err)
 
-    return jsonify({"status": "OK"})
+    return jsonify({"card_id": card_id})
 
 @app.route('/api/display_all_checked_out', methods=['GET'])
 def display_all_checked_out():

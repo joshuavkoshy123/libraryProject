@@ -26,18 +26,17 @@ export default function Login() {
 
   // Handles change in username/password fields
   function handleChange(e) {
-    const {name, value} = e.target;
+    const {id, value} = e.target;
     setUserCreds(prevUserCreds => ({
       
       ...prevUserCreds,
-      [name]: value,
+      [id]: value,
       
     }));
     
   }
 
   
-
 
 
 
@@ -50,13 +49,17 @@ export default function Login() {
    * @param {SubmitEvent} e 
    */
   async function handleLogin(e) {
+    e.preventDefault();
+    console.log(userCreds.ssn);
     try{
-      const res = await fetch('http://localhost:5000/api/create_account', {
+      const res = await fetch('http://localhost:5001/api/create_account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: text }),
-        signal: controller.signal,
+        body: JSON.stringify({ ssn: userCreds.ssn, first_name: userCreds.fName, last_name: userCreds.lName, address: userCreds.address, city: userCreds.city, state: userCreds.state, phone: userCreds.phone }),
+    
       });
+      const data = await res.json();
+      console.log(data);
     }
     catch (e) {
       console.error(e)
@@ -64,23 +67,23 @@ export default function Login() {
   }
 
   return (
-    <div className='login'>
+    <form className="login" onSubmit={handleLogin}> 
       <h1>{isLogin ? 'Log In' : 'Sign up'}</h1>
       <label for='ssn'>Social Security Number</label>
-      <input id='ssn' type='text' />
+      <input id='ssn' type='text'  onChange={handleChange}/>
       <label for='fName'>First Name</label>
-      <input id='fName' type='text' />
+      <input id='fName' type='text' onChange={handleChange} />
       <label for='lName'>Last Name</label>
-      <input id='lName' type='text' />
+      <input id='lName' type='text' onChange={handleChange} />
       <label for='address'>Address</label>
-      <input id='address' type='text' />
+      <input id='address' type='text' onChange={handleChange} />
       <label for='city'>City</label>
-      <input id='city' type='text' />
+      <input id='city' type='text' onChange={handleChange} />
       <label for='state'>State</label>
-      <input id='state' type='text' />
+      <input id='state' type='text' onChange={handleChange}/>
       <label for='phone'>Phone</label>
-      <input id='phone' type='text' />
+      <input id='phone' type='text' onChange={handleChange} />
       <input type="submit" />
-    </div>
+    </form>
   );
 }
