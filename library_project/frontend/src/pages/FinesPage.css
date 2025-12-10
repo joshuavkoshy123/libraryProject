@@ -1,0 +1,198 @@
+/* File: src/components/FinesPage.css */
+
+.fines-container {
+  padding: 24px;
+  background-color: #f9fafb;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.fines-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.fines-header h1 {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.fines-header .actions button {
+  margin-right: 8px;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  color: white;
+  cursor: pointer;
+}
+
+.fines-header .actions button.export { background-color: #0284c7; }
+.fines-header .actions button.recalculate { background-color: #4f46e5; }
+
+.search-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 0 4px rgba(0,0,0,0.1);
+}
+
+.search-filters input, .search-filters select {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.search-filters .sort-buttons {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  background-color: white;
+  border-radius: 6px;
+  box-shadow: 0 0 4px rgba(0,0,0,0.1);
+}
+
+.fines-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fines-table th, .fines-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.fines-table th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+}
+
+.fines-table tr:hover {
+  background-color: #f9fafb;
+}
+
+.status-paid {
+  background-color: #d1fae5;
+  color: #065f46;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-unpaid {
+  background-color: #fef3c7;
+  color: #78350f;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.table-actions button {
+  margin-right: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.table-actions .mark-paid { background-color: #10b981; color: white; border: none; }
+.table-actions .details { background-color: #fff; border: 1px solid #ccc; }
+
+.pagination {
+  margin-top: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pagination button {
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0,0,0,0.4);
+  z-index: 40;
+}
+
+.modal {
+  position: fixed;
+  z-index: 50;
+  background-color: white;
+  border-radius: 6px;
+  padding: 16px;
+  max-width: 480px;
+  width: 90%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.modal h2 {
+  margin-bottom: 12px;
+}
+
+.modal .modal-row {
+  margin-bottom: 6px;
+  font-size: 14px;
+}
+
+.modal .modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.modal-actions button {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.update-row {
+  background: #3b82f6;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  margin-right: 6px;
+}
+
+.update-row:hover {
+  opacity: 0.85;
+}
+
+
+.modal-actions .close { background-color: #fff; border: 1px solid #ccc; }
+.modal-actions .mark-paid { background-color: #10b981; color: white; }
+.modal-actions .reset-fine { background-color: #ef4444; color: white; }
+
