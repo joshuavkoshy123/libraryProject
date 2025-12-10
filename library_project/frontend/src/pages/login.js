@@ -33,6 +33,7 @@ export default function Login() {
    * @param {SubmitEvent} e 
    */
   async function handleLogin(e) {
+    /*
     try {
       const res = await fetch('http://localhost:5000/api/create_account', {
         method: 'POST',
@@ -44,6 +45,7 @@ export default function Login() {
     catch (e) {
       console.error(e)
     }
+      */
   }
 
   return (
