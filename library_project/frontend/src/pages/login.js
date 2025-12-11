@@ -60,30 +60,53 @@ export default function Login() {
       });
       const data = await res.json();
       console.log(data);
+      alert("Account Created with Card ID: " + data.card_id);
+
+      //clear fields after submission
+
+      setUserCreds({
+      ssn: '',
+      fName: '',
+      lName: '',
+      address: '',
+      city: '',
+      state: '',
+      phone: '',
+    });
+
+  
+      
     }
+
+    
     catch (e) {
       console.error(e)
     }
   }
 
+  
+  
+
   return (
     <form className="login" onSubmit={handleLogin}> 
-      <h1>{isLogin ? 'Log In' : 'Sign up'}</h1>
+      <h1>{isLogin ? 'Log In' : 'Add New Borrower'}</h1>
       <label for='ssn'>Social Security Number</label>
-      <input id='ssn' type='text'  onChange={handleChange}/>
+      <input required id='ssn' type='text' value={userCreds.ssn} minLength={9} maxLength={9} onChange={handleChange}/>
       <label for='fName'>First Name</label>
-      <input id='fName' type='text' onChange={handleChange} />
+      <input id='fName' type='text' value={userCreds.fName} onChange={handleChange} />
       <label for='lName'>Last Name</label>
-      <input id='lName' type='text' onChange={handleChange} />
+      <input id='lName' type='text' value={userCreds.lName} onChange={handleChange} />
       <label for='address'>Address</label>
-      <input id='address' type='text' onChange={handleChange} />
+      <input id='address' type='text' value={userCreds.address} onChange={handleChange} />
       <label for='city'>City</label>
-      <input id='city' type='text' onChange={handleChange} />
+      <input id='city' type='text' value={userCreds.city} onChange={handleChange} />
       <label for='state'>State</label>
-      <input id='state' type='text' onChange={handleChange}/>
-      <label for='phone'>Phone</label>
-      <input id='phone' type='text' onChange={handleChange} />
-      <input type="submit" />
+      <input id='state' type='text' value={userCreds.state} onChange={handleChange}/>
+      <label for='phone'>Phone (digits only, i.e. 8889995555) </label>
+      <input id='phone' type='text' value={userCreds.phone} minLength={10} maxLength={10} onChange={handleChange} />
+      <input type="submit" value="Submit & Create New Account"/>
+      
+
     </form>
   );
 }
