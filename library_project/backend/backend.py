@@ -10,7 +10,8 @@ import os
 app = Flask(__name__)
 CORS(app, origins="http://localhost:3000")
 
-conn = psycopg2.connect(host="localhost", dbname="library", user="charlesdoan", password="Joshua123", port=5432)
+conn = psycopg2.connect(host="localhost", dbname="library", user="postgres", password="2004", port=5432)
+#conn = psycopg2.connect(host="localhost", dbname="library", user="charlesdoan", password="Joshua123", port=5432)
 # conn = psycopg2.connect(
 #     host="localhost",
 #     dbname="library",
@@ -141,7 +142,7 @@ def create_account():
 
     return jsonify({"card_id": card_id})
 
-@app.route('/api/display_all_checked_out', methods=['GET'])
+@app.route('/api/display_all_checked_out', methods=['POST'])
 def display_all_checked_out():
     cursor.execute("""SELECT BL.loan_id, BL.isbn, BL.card_id, BR.first_name, BR.last_name, B.title, BL.date_out, BL.due_date
                       FROM BOOK_LOANS BL
