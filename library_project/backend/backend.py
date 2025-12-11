@@ -10,8 +10,8 @@ import os
 app = Flask(__name__)
 CORS(app, origins="http://localhost:3000")
 
-#conn = psycopg2.connect(host="localhost", dbname="library", user="postgres", password="Joshua123", port=5432)
-conn = psycopg2.connect(host="localhost", dbname="library", user="postgres", password="2004", port=5432)
+conn = psycopg2.connect(host="localhost", dbname="library", user="postgres", password="Joshua123", port=5432)
+#conn = psycopg2.connect(host="localhost", dbname="library", user="postgres", password="2004", port=5432)
 # conn = psycopg2.connect(
 #     host="localhost",
 #     dbname="library",
@@ -51,6 +51,8 @@ def search():
     isbn = rows[0][0]
     authors = ""
     i = 0
+    count = 0
+    status = []
     while i < len(rows):
         isbn = rows[i][0]
         title = rows[i][1]
@@ -64,23 +66,25 @@ def search():
         cursor.execute("""SELECT date_in FROM BOOK_LOANS WHERE isbn=%s;""", (isbn,))
         results = cursor.fetchall()
 
-        status = "IN"
-
+        book_status = ""
         for result in results:
             if result:
                 if result[0] is None:
-                    status = "OUT"
+                    book_status = "OUT"
                     break
                 else:
-                    status = "IN"
+                    book_status = "IN"
             else:
-                status = "IN"
+                book_status = "IN"
+
+        status.append(book_status)
 
         authors = authors[:-2]
-        print(f"{isbn:<14} \t {title:<150} \t {authors:<100} \t {status:<100}")
+        print(f"{isbn:<14} \t {title:<150} \t {authors:<100} \t {book_status:<100}")
         authors = ""
+        count += 1
 
-    return jsonify(rows)
+    return jsonify({"books": rows, "status": status})
 
 @app.route('/api/create_account', methods=['POST'])
 def create_account():
@@ -210,6 +214,9 @@ def check_in(): # by dylan
 
 @app.route('/api/checkout', methods=['POST'])
 def checkout(card_id, isbn):
+    data = request.get_json()
+    card_id = data.get("card_id", "")
+    isbn = data.get("isbn", "")
     try:
         cursor.execute("""SELECT COUNT(BOOK_LOANS.card_id)
                           FROM BOOK_LOANS
@@ -256,6 +263,8 @@ def checkout(card_id, isbn):
         print ("Checkout successful, your book is due on ", due_date)
     except psycopg2.Error as err:
         print("Database error:", err)
+
+    return jsonify({"CARD_ID": card_id, "ISBN": isbn})
 
 def calculate_fines():
     try:
