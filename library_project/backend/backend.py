@@ -219,7 +219,7 @@ def check_in(): # by dylan
 #conn.commit()
 
 @app.route('/api/checkout', methods=['POST'])
-def checkout(card_id, isbn):
+def checkout():
     data = request.get_json()
     card_id = data.get("card_id", "")
     isbn = data.get("isbn", "")

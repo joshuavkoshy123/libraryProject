@@ -4,13 +4,7 @@ import '../styles/search.css';
 export default function Search() {
   const [search, setSearch] = useState('');
   const [currentBook, setCurrentBook] = useState('');
-  const [books, setBooks] = useState([{ // Array of book objects
-    ssn: '',
-    title: '',
-    fName: '',
-    mName: '',
-    lName: '',
-  }]);
+  const [books, setBooks] = useState([]); // Array of book objects
 
   /**
    * Collects search field value
@@ -22,22 +16,25 @@ export default function Search() {
   }
 
   /**
-   * For every book in data, map to a book object and add to temp.
-   * Then pdate state to temp.
+   * Maps each individual collection of author, isbn, statuse, and title 
+   * to an object
    * 
-   * PRECONDITION: queryBooks.length === bookStatuses.length
-   * @param {[{isbn, title, fName, mName, lName}]} queryBooks 
+   * PRECONDITION: all parameters are same length
+   * @param {Array} authors 
+   * @param {Array} isbns 
+   * @param {Array} statuses
+   * @param {Array} titles 
    */
-  function updateBooks(queryBooks, bookStatuses) {
-    let temp = queryBooks.map((book, index) => ({ // Temporary new array of books
-      isbn: book[0],
-      title: book[1],
-      fName: book[2],
-      mName: book[3],
-      lName: book[4],
-      status: bookStatuses[index],
+  function updateBooks(isbns, titles, authors, statuses) {
+    const titleIndex = 1;
+    let temp = authors.map((_, index) => ({ // Create array of objects
+      isbn: isbns[index],
+      title: titles[index],
+      author: authors[index],
+      status: statuses[index],
     }));
     setBooks(_ => temp);
+    console.log(books);
   }
 
   /**
@@ -58,15 +55,35 @@ export default function Search() {
       }
 
       const data = await response.json();
-      console.log(data);
-      updateBooks(data.books, data.status);
+      updateBooks(data.isbns, data.titles, data.author_list, data.status);
     } catch (e) {
       console.error(e);
     }
   }
 
-  function handleCheckout(e, book) {
-    
+  /**
+   * Prompts the user to checkout a book
+   * @param {{isbn, title, author, status}} book 
+   */
+  async function handleCheckout(book) {
+    const cardId = window.prompt(`ISBN: ${book.isbn}\n\nTitle: ${book.title}\n\nEnter your card to check out: `);
+    book.status = "OUT";
+    if (!cardId) {
+      alert('Checkout Cancelled.');
+    }
+
+    try {
+      const res = await fetch('http://localhost:5001/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          card_id: cardId,
+          isbn: book.isbn,
+        }),
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   /**
@@ -90,6 +107,7 @@ export default function Search() {
             <th>ISBN</th>
             <th>Title</th>
             <th>Author Name</th>
+            <th>Status</th>
           </tr>
         </thead>
         <tbody>
@@ -97,10 +115,11 @@ export default function Search() {
             <tr key={book.isbn} onMouseEnter={() => handleHover(book.isbn)}>
               <td>{book.isbn}</td>
               <td>{book.title}</td>
-              <td>{book.fName} {book.mName != "NaN" ? book.mName : ""} {book.lName}</td>
+              <td>{book.author}</td>
+              <td>{book.status}</td>
               <td>
-                {book.status === "IN" 
-                  ? <button onClick={handleCheckout(book)}>Check out</button>
+                {book.status === 'IN' 
+                  ? <button onClick={() => handleCheckout(book)}>Check out</button>
                   : <button>Already checked out</button>}
               </td>
             </tr>
