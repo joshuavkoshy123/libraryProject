@@ -3,12 +3,13 @@ import Login from './pages/login';
 import CheckInPage from './components/CheckInPage.jsx';
 import FinesPage from './pages/FinesPage.jsx';
 import './App.css';
+import NewAccount from './NewAccount';
 
 function App() {
   return (
     <div className='App'>
       <nav className='Nav'>
-        <Link to='/login'>Log In</Link>
+        <Link to='/login'>Add New Borrower</Link>
         <Link to='/checkin'>Check In</Link>
         <Link to='/fines'>Fines</Link>
       </nav>
@@ -18,6 +19,7 @@ function App() {
         <Route path='/fines' element={<FinesPage />} />
       </Routes>
     </div>
+
   );
 }
 
