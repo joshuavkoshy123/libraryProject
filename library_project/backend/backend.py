@@ -53,6 +53,9 @@ def search():
     i = 0
     count = 0
     status = []
+    isbns = []
+    titles = []
+    author_list = []
     while i < len(rows):
         isbn = rows[i][0]
         title = rows[i][1]
@@ -80,11 +83,14 @@ def search():
         status.append(book_status)
 
         authors = authors[:-2]
+        isbns.append(isbn)
+        titles.append(title)
+        author_list.append(authors)
         print(f"{isbn:<14} \t {title:<150} \t {authors:<100} \t {book_status:<100}")
         authors = ""
         count += 1
 
-    return jsonify({"books": rows, "status": status})
+    return jsonify({"books": rows, "isbns": isbns, "titles": titles, "author_list": author_list, "status": status})
 
 @app.route('/api/create_account', methods=['POST'])
 def create_account():
@@ -334,7 +340,7 @@ def update_fines(loan_id):
 @app.route('/api/display_fines', methods=['GET'])
 def display_fines():
     calculate_fines()
-    cursor.execute("""SELECT card_id, SUM(fine_amt)
+    cursor.execute("""SELECT card_id, SUM(fine_amt), paid
                       FROM BOOK_LOANS
                       JOIN FINES ON BOOK_LOANS.loan_id = FINES.loan_id
                       GROUP BY card_id;""")
