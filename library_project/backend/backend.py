@@ -66,7 +66,7 @@ def search():
         cursor.execute("""SELECT date_in FROM BOOK_LOANS WHERE isbn=%s;""", (isbn,))
         results = cursor.fetchall()
 
-        book_status = ""
+        book_status = "IN"
         for result in results:
             if result:
                 if result[0] is None:

@@ -46,34 +46,34 @@ export default function Login() {
       const res = await fetch('http://localhost:5001/api/create_account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ssn: userCreds.ssn, first_name: userCreds.fName, last_name: userCreds.lName, address: userCreds.address, city: userCreds.city, state: userCreds.state, phone: userCreds.phone }),
-    
+        body: JSON.stringify({ 
+          ssn: userCreds.ssn, 
+          first_name: userCreds.fName, 
+          last_name: userCreds.lName, 
+          address: userCreds.address, 
+          city: userCreds.city, 
+          state: userCreds.state, 
+          phone: userCreds.phone 
+        }),
       });
+      
       const data = await res.json();
       console.log(data);
       alert("Account Created with Card ID: " + data.card_id);
 
       //clear fields after submission
-
       setUserCreds({
-      ssn: '',
-      fName: '',
-      lName: '',
-      address: '',
-      city: '',
-      state: '',
-      phone: '',
-    });
-
-  
-      
-    }
-
-    
-    catch (e) {
+        ssn: '',
+        fName: '',
+        lName: '',
+        address: '',
+        city: '',
+        state: '',
+        phone: '',
+      });
+    } catch (e) {
       console.error(e)
     }
-      */
   }
 
   

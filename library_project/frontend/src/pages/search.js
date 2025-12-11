@@ -18,24 +18,25 @@ export default function Search() {
    */
   function handleChange(e) {
     const {name, value} = e.target;
-
     setSearch(_ => value);
   }
 
   /**
    * For every book in data, map to a book object and add to temp.
    * Then pdate state to temp.
+   * 
+   * PRECONDITION: queryBooks.length === bookStatuses.length
    * @param {[{isbn, title, fName, mName, lName}]} queryBooks 
    */
-  function updateBooks(queryBooks) {
-    let temp = queryBooks.map((book) => ({ // Temporary new array of books
+  function updateBooks(queryBooks, bookStatuses) {
+    let temp = queryBooks.map((book, index) => ({ // Temporary new array of books
       isbn: book[0],
       title: book[1],
       fName: book[2],
       mName: book[3],
       lName: book[4],
+      status: bookStatuses[index],
     }));
-    console.log(temp);
     setBooks(_ => temp);
   }
 
@@ -58,14 +59,14 @@ export default function Search() {
 
       const data = await response.json();
       console.log(data);
-      updateBooks(data);
+      updateBooks(data.books, data.status);
     } catch (e) {
       console.error(e);
     }
   }
 
-  function handleCheckout(e) {
-
+  function handleCheckout(e, book) {
+    
   }
 
   /**
@@ -98,9 +99,9 @@ export default function Search() {
               <td>{book.title}</td>
               <td>{book.fName} {book.mName != "NaN" ? book.mName : ""} {book.lName}</td>
               <td>
-                <button onClick={handleCheckout}>
-                  Check out
-                </button>
+                {book.status === "IN" 
+                  ? <button onClick={handleCheckout(book)}>Check out</button>
+                  : <button>Already checked out</button>}
               </td>
             </tr>
           ))}
