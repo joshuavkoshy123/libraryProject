@@ -66,18 +66,21 @@ def search():
         cursor.execute("""SELECT date_in FROM BOOK_LOANS WHERE isbn=%s;""", (isbn,))
         results = cursor.fetchall()
 
+        book_status = ""
         for result in results:
             if result:
                 if result[0] is None:
-                    status.append("OUT")
+                    book_status = "OUT"
                     break
                 else:
-                    status.append("IN")
+                    book_status = "IN"
             else:
-                status.append("IN")
+                book_status = "IN"
+
+        status.append(book_status)
 
         authors = authors[:-2]
-        print(f"{isbn:<14} \t {title:<150} \t {authors:<100} \t {status[count]:<100}")
+        print(f"{isbn:<14} \t {title:<150} \t {authors:<100} \t {book_status:<100}")
         authors = ""
         count += 1
 
