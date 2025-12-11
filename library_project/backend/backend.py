@@ -66,18 +66,21 @@ def search():
         cursor.execute("""SELECT date_in FROM BOOK_LOANS WHERE isbn=%s;""", (isbn,))
         results = cursor.fetchall()
 
+        book_status = ""
         for result in results:
             if result:
                 if result[0] is None:
-                    status.append("OUT")
+                    book_status = "OUT"
                     break
                 else:
-                    status.append("IN")
+                    book_status = "IN"
             else:
-                status.append("IN")
+                book_status = "IN"
+
+        status.append(book_status)
 
         authors = authors[:-2]
-        print(f"{isbn:<14} \t {title:<150} \t {authors:<100} \t {status[count]:<100}")
+        print(f"{isbn:<14} \t {title:<150} \t {authors:<100} \t {book_status:<100}")
         authors = ""
         count += 1
 
@@ -95,6 +98,13 @@ def create_account():
         city = data.get("city", "")
         state = data.get("state", "")
         phone = data.get("phone", "")
+
+        print(f"SSN: {ssn}")
+        print(f"fname: {first_name}")
+        print(f"lname: {last_name}")
+        
+
+        #print("ssn\n" ssn, "fname\n" first_name, last_name, address, city, state, phone)
 
         cursor.execute("""SELECT card_id
                         FROM BORROWER
@@ -123,7 +133,7 @@ def create_account():
     except psycopg2.Error as err:
         print("Database error:", err)
 
-    return jsonify({"status": "OK"})
+    return jsonify({"card_id": card_id})
 
 @app.route('/api/display_all_checked_out', methods=['GET'])
 def display_all_checked_out():
